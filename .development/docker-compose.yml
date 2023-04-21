@@ -1,0 +1,42 @@
+version: "3.2"
+
+services:
+  permission:
+    image: busybox:1.35
+    restart: always
+    command: tail -f /etc/hostname
+    volumes:
+      - ./data/mysql:/data/mysql
+      - ./data/redis:/data/redis
+    healthcheck:
+      interval: 5s
+      test: find /data -mindepth 1 -maxdepth 1 ! -perm 777 -exec chmod 777 {} +
+
+  mysql:
+    image: bitnami/mysql:8.0
+    restart: always
+    depends_on:
+      permission:
+        condition: service_healthy
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data/mysql:/bitnami/mysql/data
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_USER: mini
+      MYSQL_PASSWORD: mini
+      MYSQL_DATABASE: mini
+
+  redis:
+    image: bitnami/redis:6.2
+    restart: always
+    depends_on:
+      permission:
+        condition: service_healthy
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/bitnami/redis/data
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"

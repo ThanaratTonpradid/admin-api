@@ -1,0 +1,10 @@
+include:
+  - project: "devops/gitlab-ci"
+    file: variables-template.yml
+  - local: .gitlab/ci/dev.yml
+  - local: .gitlab/ci/uat.yml
+  - local: .gitlab/ci/prod.yml
+
+stages:
+  - make
+  - release
